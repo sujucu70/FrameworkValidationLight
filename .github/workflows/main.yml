@@ -1,0 +1,46 @@
+# Nombre del flujo de trabajo
+name: Build and Deploy to GitHub Pages
+
+on:
+  # Se ejecuta automáticamente cada vez que envías cambios a la rama 'main'
+  push:
+    branches: ["main"]
+
+# Permisos necesarios para que la acción publique en tu nombre
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Descarga tu código del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura el entorno de Node.js para construir el proyecto
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # 3. Instala las dependencias del proyecto
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Construye la aplicación (crea la carpeta 'dist' con la web final)
+      - name: Build project
+        run: npm run build
+
+      # 5. Sube el resultado para que GitHub Pages lo pueda usar
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      # 6. Despliega el sitio web
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
